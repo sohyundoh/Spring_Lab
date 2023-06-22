@@ -4,8 +4,8 @@ import com.sohyun.springsecurityseminar.controller.dto.TokenDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,12 +24,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public class JwtTokenProvider {
     private final Key key;
 
-    String secretKey = "VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa";
-
 
     private long tokenValidTime = 30 * 60 * 1000L;
 
-    public JwtTokenProvider() {
+    public JwtTokenProvider(@Value("${jwt.secret}")  String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }

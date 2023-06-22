@@ -1,5 +1,6 @@
 package com.sohyun.springsecurityseminar.security.config;
 
+import com.sohyun.springsecurityseminar.exception.model.NotAuthorityException;
 import com.sohyun.springsecurityseminar.security.JwtAuthenticationFilter;
 import com.sohyun.springsecurityseminar.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;

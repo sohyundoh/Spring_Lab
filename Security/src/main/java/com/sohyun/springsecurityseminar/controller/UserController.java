@@ -4,12 +4,15 @@ import com.sohyun.springsecurityseminar.common.dto.ApiResponse;
 import com.sohyun.springsecurityseminar.controller.dto.LoginRequestDto;
 import com.sohyun.springsecurityseminar.controller.dto.TokenDto;
 import com.sohyun.springsecurityseminar.exception.Success;
+import com.sohyun.springsecurityseminar.exception.model.NotAuthorityException;
 import com.sohyun.springsecurityseminar.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.security.SignatureException;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,8 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/test")
-    public ApiResponse<String> accessTest() {
-        return
-                ApiResponse.success(Success.USER_AUTHENTICATE_SUCCESS,"success");
+    public ApiResponse<String> accessTest() throws SecurityException {
+        return ApiResponse.success(Success.USER_AUTHENTICATE_SUCCESS,"success");
     }
 }
