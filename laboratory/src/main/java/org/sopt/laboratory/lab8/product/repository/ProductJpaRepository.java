@@ -12,8 +12,12 @@ import java.util.Optional;
 
 public interface ProductJpaRepository extends JpaRepository<Product, Long> {
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.OPTIMISTIC)
     Optional<Product> findById(final Long productId);
+
+    @Lock(LockModeType.NONE)
+    @Query("select p from Product  p where p.id = :productId")
+    Optional<Product> findById_NONE(final @Param("productId") Long productId);
 
     @Query("select p.heartAmount from Product p where p.id = :productId")
     int findHeartAmountByProductId(final @Param("productId") Long productId);

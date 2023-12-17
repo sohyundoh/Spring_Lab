@@ -9,16 +9,25 @@ import org.sopt.laboratory.lab8.heart.service.HeartService;
 import org.sopt.laboratory.lab8.product.domain.Product;
 import org.sopt.laboratory.lab8.product.repository.ProductJpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public class ProductService {
+
     private final ProductJpaRepository productJpaRepository;
-    private final HeartRepository heartRepository;
+
     public Product getProductById(final Long productId) {
         return productJpaRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException(ErrorType.PRODUCT_NOT_FOUND_EXCEPTION));
+    }
+
+    public Product getProductById_NONE(final Long productId) {
+        return productJpaRepository.findById_NONE(productId)
+                .orElseThrow(() -> new NotFoundException(ErrorType.PRODUCT_NOT_FOUND_EXCEPTION));
+
     }
 
     public void decreaseHeart(final Long productId) {
@@ -32,7 +41,5 @@ public class ProductService {
     public int getHeartAmountFromProduct(final Long productId) {
         return productJpaRepository.findHeartAmountByProductId(productId);
     }
-    public int getHeartAmount(final Long productId) {
-        return heartRepository.findByProductId(productId).size();
-    }
+
 }
