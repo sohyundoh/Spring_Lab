@@ -23,6 +23,11 @@ public class ProductService {
         return productJpaRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException(ErrorType.PRODUCT_NOT_FOUND_EXCEPTION));
     }
+    public Product getProductById_PESSIMISTIC(final Long productId) {
+        return productJpaRepository.findById_PESSIMISTIC(productId)
+                .orElseThrow(() -> new NotFoundException(ErrorType.PRODUCT_NOT_FOUND_EXCEPTION));
+    }
+
 
     public Product getProductById_NONE(final Long productId) {
         return productJpaRepository.findById_NONE(productId)
@@ -31,11 +36,11 @@ public class ProductService {
     }
 
     public void decreaseHeart(final Long productId) {
-        getProductById(productId).decreaseHeart();
+        getProductById_PESSIMISTIC(productId).decreaseHeart();
     }
-
+_
     public void increaseHeart(final Long productId) {
-        getProductById(productId).increaseHeart();
+        getProductById_PESSIMISTIC(productId).increaseHeart();
     }
 
     public int getHeartAmountFromProduct(final Long productId) {
