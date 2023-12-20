@@ -1,4 +1,4 @@
-package com.laboratory.auth.controller;
+package com.laboratory.auth.common.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
