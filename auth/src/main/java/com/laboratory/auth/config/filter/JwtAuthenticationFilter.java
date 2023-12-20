@@ -2,6 +2,8 @@ package com.laboratory.auth.config.filter;
 
 import com.laboratory.auth.config.JwtTokenProvider;
 import com.laboratory.auth.config.authentication.UserAuthentication;
+import com.laboratory.auth.exception.ErrorMessage;
+import com.laboratory.auth.exception.model.UnAuthorizedException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.laboratory.auth.config.JwtValidationType.EXPIRED_JWT_TOKEN;
 import static com.laboratory.auth.config.JwtValidationType.VALID_JWT;
 
 @Component
@@ -36,6 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserAuthentication authentication = new UserAuthentication(memberId.toString(), null, null);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if(jwtTokenProvider.validateToken(token) == EXPIRED_JWT_TOKEN) {
+                throw new UnAuthorizedException(ErrorMessage.ACCESS_TOKEN_EXPIRED);
             }
         } catch (Exception exception) {
             try {

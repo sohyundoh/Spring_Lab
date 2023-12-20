@@ -23,7 +23,8 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private static final String MEMBER_ID = "memberId";
-    private static final Long TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L;
+    private static final Long ACCESS_TOKEN_EXPIRATION_TIME = 24 * 60 * 60 * 1000L;
+    private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 60 * 60 * 24 * 1000L * 14;
 
     @Value("${jwt.secret}")
     private String JWT_SECRET;
@@ -34,12 +35,24 @@ public class JwtTokenProvider {
         JWT_SECRET = Base64.getEncoder().encodeToString(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Authentication authentication) {
+    public String issueAccessToken(final Authentication authentication) {
+        return issueToken(authentication, ACCESS_TOKEN_EXPIRATION_TIME);
+    }
+
+
+    public String issueRefreshToken(final Authentication authentication) {
+        return issueToken(authentication, REFRESH_TOKEN_EXPIRATION_TIME);
+    }
+
+    private String issueToken(
+            final Authentication authentication,
+            final Long expiredTime
+    ) {
         final Date now = new Date();
 
         final Claims claims = Jwts.claims()
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + TOKEN_EXPIRATION_TIME));  // 만료 시간 설정
+                .setExpiration(new Date(now.getTime() + expiredTime));  // 만료 시간 설정
 
         claims.put(MEMBER_ID, authentication.getPrincipal());
         return Jwts.builder()

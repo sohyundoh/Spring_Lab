@@ -1,45 +1,61 @@
 package com.laboratory.auth.user.service;
 
-import com.laboratory.auth.common.dto.SuccessResponse;
-import com.laboratory.auth.config.JwtTokenProvider;
-import com.laboratory.auth.config.authentication.UserAuthentication;
-import com.laboratory.auth.exception.SuccessMessage;
+import com.laboratory.auth.exception.ErrorMessage;
+import com.laboratory.auth.exception.model.BadRequestException;
 import com.laboratory.auth.external.client.kakao.KakaoApiClient;
+import com.laboratory.auth.external.client.kakao.KakaoAuthApiClient;
+import com.laboratory.auth.external.client.kakao.dto.response.KakaoAccessTokenResponse;
 import com.laboratory.auth.external.client.kakao.dto.response.KakaoUserResponse;
-import com.laboratory.auth.user.controller.dto.SignUpSuccessResponse;
-import com.laboratory.auth.user.domain.User;
-import com.laboratory.auth.user.repository.UserRepository;
+import com.laboratory.auth.user.controller.dto.LoginSuccessResponse;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class KakaoSocialService {
+public class KakaoSocialService extends SocialService {
 
-    private final UserRepository userRepository;
+    private static final String AUTH_CODE = "authorization_code";
+
+    @Value("${kakao.clientId}")
+    private String clientId;
+
+    private final UserService userService;
     private final KakaoApiClient kakaoApiClient;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final KakaoAuthApiClient kakaoAuthApiClient;
 
     @Transactional
-    public SignUpSuccessResponse signUp(final String accessToken) {
+    @Override
+    public LoginSuccessResponse login(final String authorizationCode) {
+        String accessToken;
+        try {
+            // 인가 코드로 Access Token + Refresh Token 받아오기
+            accessToken = getOAuth2Authentication(authorizationCode);
+        } catch (FeignException e) {
+            throw new BadRequestException(ErrorMessage.AUTHENTICATION_CODE_EXPIRED);
+        }
         // Access Token으로 유저 정보 불러오기
         KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + accessToken);
-
-        Long id = createUser(userResponse);
-
-        UserAuthentication userAuthentication = new UserAuthentication(id, null, null);
-
-        return SignUpSuccessResponse.of(jwtTokenProvider.generateToken(userAuthentication));
+        if(userService.isExistingUser(userResponse.kakaoAccount().profile().accountEmail())){
+            return userService.getTokenByUserId(userService.getIdByEmail(userResponse.kakaoAccount().profile().accountEmail()));
+        }else {
+            return userService.getTokenByUserId(userService.createUser(userResponse));
+        }
     }
 
-    private Long createUser(final KakaoUserResponse userResponse) {
-        User user = User.of(
-                userResponse.kakaoAccount().profile().nickname(),
-                userResponse.kakaoAccount().profile().profileImageUrl(),
-                userResponse.kakaoAccount().profile().accountEmail()
+    private String getOAuth2Authentication(
+            final String authorizationCode
+    ) {
+        KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
+                AUTH_CODE,
+                clientId,
+                "http://localhost:8080/kakao/callback",
+                authorizationCode
         );
-        return userRepository.save(user).getId();
+        return tokenResponse.accessToken();
     }
+
 
 }

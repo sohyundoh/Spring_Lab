@@ -26,7 +26,8 @@ public class SecurityConfig {
 
 
     private static final String[] AUTH_WHITELIST = {
-            "/user/kakao/signup"
+            "/user/kakao/login",
+            "/user/token-refresh"
     };
 
 

@@ -16,4 +16,14 @@ public record SuccessResponse<T>(
                 successMessage.getMessage(),
                 data);
     }
+
+    public static SuccessResponse of(
+            final SuccessMessage successMessage
+    ) {
+        return new SuccessResponse(
+                successMessage.getStatus(),
+                successMessage.getMessage(),
+                ""
+        );
+    }
 }
