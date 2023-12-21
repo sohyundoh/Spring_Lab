@@ -5,6 +5,7 @@ import com.laboratory.auth.config.authentication.UserAuthentication;
 import com.laboratory.auth.exception.ErrorMessage;
 import com.laboratory.auth.exception.model.NotFoundException;
 import com.laboratory.auth.exception.model.UnAuthorizedException;
+import com.laboratory.auth.external.bot.WebhookService;
 import com.laboratory.auth.external.client.kakao.dto.response.KakaoUserResponse;
 import com.laboratory.auth.token.service.RefreshTokenService;
 import com.laboratory.auth.user.controller.dto.AccessTokenGetSuccess;
@@ -21,6 +22,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
+    private final WebhookService webhookService;
 
     public Long createUser(final KakaoUserResponse userResponse) {
         User user = User.of(
@@ -63,6 +65,7 @@ public class UserService {
     public LoginSuccessResponse getTokenByUserId(
             final Long id
     ) {
+        webhookService.callEvent(id);
         UserAuthentication userAuthentication = new UserAuthentication(id, null, null);
         String refreshToken = jwtTokenProvider.issueRefreshToken(userAuthentication);
         refreshTokenService.saveRefreshToken(id, refreshToken);
