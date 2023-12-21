@@ -22,8 +22,6 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
-    private final WebhookService webhookService;
-
     public Long createUser(final KakaoUserResponse userResponse) {
         User user = User.of(
                 userResponse.kakaoAccount().profile().nickname(),
@@ -65,7 +63,6 @@ public class UserService {
     public LoginSuccessResponse getTokenByUserId(
             final Long id
     ) {
-        webhookService.callEvent(id);
         UserAuthentication userAuthentication = new UserAuthentication(id, null, null);
         String refreshToken = jwtTokenProvider.issueRefreshToken(userAuthentication);
         refreshTokenService.saveRefreshToken(id, refreshToken);
