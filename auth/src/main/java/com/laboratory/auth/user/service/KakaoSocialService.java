@@ -9,16 +9,18 @@ import com.laboratory.auth.external.client.kakao.dto.response.KakaoUserResponse;
 import com.laboratory.auth.user.controller.dto.LoginSuccessResponse;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class KakaoSocialService extends SocialService {
 
     private static final String AUTH_CODE = "authorization_code";
-
+    private static final String REDIRECT_URI = "http://localhost:8080/kakao/callback";
     @Value("${kakao.clientId}")
     private String clientId;
 
@@ -37,12 +39,7 @@ public class KakaoSocialService extends SocialService {
             throw new BadRequestException(ErrorMessage.AUTHENTICATION_CODE_EXPIRED);
         }
         // Access Token으로 유저 정보 불러오기
-        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + accessToken);
-        if(userService.isExistingUser(userResponse.kakaoAccount().profile().accountEmail())){
-            return userService.getTokenByUserId(userService.getIdByEmail(userResponse.kakaoAccount().profile().accountEmail()));
-        }else {
-            return userService.getTokenByUserId(userService.createUser(userResponse));
-        }
+         return getUserInfo(accessToken);
     }
 
     private String getOAuth2Authentication(
@@ -51,11 +48,26 @@ public class KakaoSocialService extends SocialService {
         KakaoAccessTokenResponse tokenResponse = kakaoAuthApiClient.getOAuth2AccessToken(
                 AUTH_CODE,
                 clientId,
-                "http://localhost:8080/kakao/callback",
+                REDIRECT_URI,
                 authorizationCode
         );
         return tokenResponse.accessToken();
     }
 
+    private LoginSuccessResponse getUserInfo(
+            final String accessToken
+    ) {
+        KakaoUserResponse userResponse = kakaoApiClient.getUserInformation("Bearer " + accessToken);
+        return getTokenDto(userResponse);
+    }
 
+    private LoginSuccessResponse getTokenDto(
+            final KakaoUserResponse userResponse
+    ) {
+        if(userService.isExistingUser(userResponse.id())){
+            return userService.getTokenByUserId(userService.getIdBySocialId(userResponse.id()));
+        }else {
+            return userService.getTokenByUserId(userService.createUser(userResponse));
+        }
+    }
 }

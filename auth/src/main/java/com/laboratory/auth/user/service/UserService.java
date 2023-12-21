@@ -26,15 +26,16 @@ public class UserService {
         User user = User.of(
                 userResponse.kakaoAccount().profile().nickname(),
                 userResponse.kakaoAccount().profile().profileImageUrl(),
-                userResponse.kakaoAccount().profile().accountEmail()
+                userResponse.kakaoAccount().profile().accountEmail(),
+                userResponse.id()
         );
         return userRepository.save(user).getId();
     }
 
-    public Long getIdByEmail(
-            final String email
+    public Long getIdBySocialId(
+            final Long socialId
     ) {
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findBySocialId(socialId).orElseThrow(
                 () -> new NotFoundException(ErrorMessage.USER_NOT_FOUND)
         );
         return user.getId();
@@ -54,9 +55,9 @@ public class UserService {
     }
 
     public boolean isExistingUser(
-            final String email
+            final Long socialId
     ) {
-        return userRepository.findByEmail(email).isPresent();
+        return userRepository.findBySocialId(socialId).isPresent();
     }
 
     public LoginSuccessResponse getTokenByUserId(

@@ -5,16 +5,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record KakaoAccessTokenResponse(
-        String accessToken,
-        String refreshToken
+        String accessToken
 ) {
     public static KakaoAccessTokenResponse of(
-            final String accessToken,
-            final String refreshToken
+            final String accessToken
     ) {
         return new KakaoAccessTokenResponse(
-                accessToken,
-                refreshToken
+                accessToken
         );
     }
 }

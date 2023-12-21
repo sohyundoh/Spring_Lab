@@ -26,15 +26,19 @@ public class User {
 
     private String email;
 
+    private Long socialId;
+
     public static User of(
             final String name,
             final String profileImage,
-            final String email
+            final String email,
+            final Long socialId
     ) {
         return User.builder()
                 .name(name)
                 .profileImage(profileImage)
                 .email(email)
+                .socialId(socialId)
                 .build();
     }
 }

@@ -8,8 +8,6 @@ import com.laboratory.auth.token.repository.TokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -46,8 +44,11 @@ public class RefreshTokenService {
     //삭제 로직
     @Transactional
     public void deleteRefreshToken(
-            final String userId
+            final Long userId
     ) {
-        redisTemplate.delete(userId);
+        Token token = tokenRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException(ErrorMessage.REFRESH_TOKEN_NOT_FOUND)
+        );
+        tokenRepository.delete(token);
     }
 }

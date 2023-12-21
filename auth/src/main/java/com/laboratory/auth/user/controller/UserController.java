@@ -45,7 +45,7 @@ public class UserController {
     public SuccessResponse deleteUser(
             final Principal principal
             ) {
-        tokenService.deleteRefreshToken(principal.getName());
+        tokenService.deleteRefreshToken(Long.valueOf(principal.getName()));
         userService.deleteUser(Long.valueOf(principal.getName()));
         return SuccessResponse.of(SuccessMessage.USER_DELETE_SUCCESS);
     }
@@ -54,7 +54,7 @@ public class UserController {
     public SuccessResponse logout(
             final Principal principal
     ) {
-        tokenService.deleteRefreshToken(principal.getName());
+        tokenService.deleteRefreshToken(Long.valueOf(principal.getName()));
         return SuccessResponse.of(SuccessMessage.LOGOUT_SUCCESS);
     }
 }

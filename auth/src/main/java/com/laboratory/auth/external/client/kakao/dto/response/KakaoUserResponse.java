@@ -6,6 +6,7 @@ import lombok.ToString;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record KakaoUserResponse(
+        Long id,
         KakaoAccount kakaoAccount
 ) {
 }
