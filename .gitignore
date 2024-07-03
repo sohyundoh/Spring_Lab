@@ -4,3 +4,5 @@
 laboratory/src/main/resources/application.yml
 
 auth/src/main/resources/application.yml
+
+lock/src/main/resources/application.yml
